@@ -1,0 +1,122 @@
+syntax = "proto3";
+
+import "google/api/annotations.proto";
+import "protoc-gen-swagger/options/annotations.proto";
+import "user.proto";
+
+package service.user;
+option go_package = "grpc-ecosystem-template/api;api";
+
+option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
+    info: {
+        title: "user service"
+        version: "v0.0.1"
+    }};
+
+service UserService {
+    // 查询服务状态接口， 无需测试.
+    rpc Status(Request) returns (Response) {
+        option (google.api.http) = {
+            get:"/api/v1/status"
+        };
+    };
+
+    // 创建
+    rpc UserCreate(UserCreateRequest) returns(UserCreateResponse){
+        option (google.api.http) = {
+            post:"/api/v1/user/create",
+            body: "*",
+        };
+    }
+
+    // delete
+    rpc UserDelete(UserDeleteRequest) returns(UserDeleteResponse){
+        option (google.api.http) = {
+            delete:"/api/v1/user/{id}"
+        };
+    }
+
+    // get
+    rpc UserGet(UserGetRequest) returns(UserGetResponse){
+        option (google.api.http) = {
+            get:"/api/v1/user/{id}"
+        };
+    }
+
+    // 列表
+    rpc UserList(UserListRequest) returns (UserListResponse) {
+        option (google.api.http) = {
+            post:"/api/v1/user/list",
+            body:"*"
+        };
+    }
+
+    // login
+    rpc Login(LoginRequest) returns (LoginResponse) {
+        option (google.api.http) = {
+            post:"/api/v1/login",
+            body:"*"
+        };
+    }
+}
+
+message Request {}
+
+message Response {
+    // status code.
+    int32 code = 1;
+    // response message.
+    string message = 2;
+}
+
+message UserCreateRequest {
+    User user = 1;
+}
+
+message UserCreateResponse {
+    int32 code = 1;
+    User user = 2;
+}
+
+message UserDeleteRequest {
+    uint64 id = 1;
+}
+
+message UserDeleteResponse {
+    int32 code = 1;
+    string message = 2;
+}
+
+message UserGetRequest {
+    uint64 id = 1;
+}
+
+message UserGetResponse {
+    int32 code = 1;
+    User user = 2;
+}
+
+message UserListRequest {
+    uint64 id = 1;
+    string name = 2;
+    int64 start_time = 3;
+    int64 end_time = 4;
+    repeated User.Gender gender = 5;
+}
+
+message UserListResponse {
+    int32 code = 1;
+    repeated User items = 2;
+}
+
+message LoginRequest {
+    string account = 1;
+    string email = 2;
+    string tel = 3;
+    string password = 4;
+}
+
+message LoginResponse {
+    int32 code = 1;
+    string token = 2;
+}

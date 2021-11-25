@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "protoc-gen-swagger/options/annotations.proto";
+
+package service.user;
+option go_package = "grpc-ecosystem-template/api;api";
+
+message User {
+  // id.
+  uint64 id = 1;
+  // name.
+  string name = 2;
+  // gender enum.
+  enum Gender {
+    GENDER_UNKNOWN = 0;
+    GENDER_MALE = 1;
+    GENDER_FEMALE = 2;
+    GENDER_GENDERLESS = 3;
+  }
+  // gender.
+  Gender gender = 3;
+  // birthday.
+  google.protobuf.Timestamp birthday = 4;
+
+  // user status enum.
+  enum Status {
+    STATUS_UNKNOWN = 0;
+    STATUS_NORMAL = 1;
+    STATUS_FROZEN = 2;
+    STATUS_DELETED = 3;
+  }
+  // user status.
+  Status status = 5;
+  // password.
+  string password = 6;
+  // account.
+  string account = 7;
+  // email.
+  string email = 8;
+  // tel.
+  string tel = 9;
+
+
+  // create time.
+  int64 create_time = 10;
+  // update time.
+  int64 update_time = 11;
+}

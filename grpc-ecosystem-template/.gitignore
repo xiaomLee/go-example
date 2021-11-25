@@ -1,0 +1,8 @@
+configs/config.yaml
+config.yaml
+ssl
+.vscode
+.idea
+logs
+build
+./*.db
