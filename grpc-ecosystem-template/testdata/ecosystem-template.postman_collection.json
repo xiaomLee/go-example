@@ -21,7 +21,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "",
+					"raw": "{\n    \"user\": \n    {\n        \"name\": \"second user\",\n        \"gender\": 1,\n        \"password\": \"second\",\n        \"birthday\": \"2021-11-26\",\n        \"email\": \"admin@gmail.com\"\n    }\n}",
 					"options": {
 						"raw": {
 							"language": "json"
