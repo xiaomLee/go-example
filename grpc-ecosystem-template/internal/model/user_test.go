@@ -1,8 +1,11 @@
 package model
 
 import (
+	"grpc-ecosystem-template/utils"
 	"testing"
 	"time"
+
+	"github.com/google/uuid"
 
 	"github.com/xiaomLee/go-plugin/db"
 )
@@ -15,10 +18,10 @@ func InitDB(t *testing.T) {
 func TestCreateUser(t *testing.T) {
 	InitDB(t)
 	user := User{
-		Id:         "2",
+		Id:         uint64(uuid.New().ID()),
 		Name:       "two",
 		Gender:     2,
-		Birthday:   time.Now(),
+		Birthday:   utils.FormatTimeToDate(time.Now()),
 		Status:     1,
 		Password:   "admin",
 		Account:    "admin",

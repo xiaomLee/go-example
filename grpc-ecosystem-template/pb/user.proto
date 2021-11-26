@@ -1,7 +1,6 @@
 syntax = "proto3";
 
 import "google/api/annotations.proto";
-import "google/protobuf/timestamp.proto";
 import "protoc-gen-swagger/options/annotations.proto";
 
 package service.user;
@@ -21,8 +20,8 @@ message User {
   }
   // gender.
   Gender gender = 3;
-  // birthday.
-  google.protobuf.Timestamp birthday = 4;
+  // birthday yy-mm-dd.
+  string birthday = 4;
 
   // user status enum.
   enum Status {

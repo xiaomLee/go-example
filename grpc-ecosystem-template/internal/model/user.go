@@ -2,16 +2,17 @@ package model
 
 import (
 	"database/sql/driver"
+	"grpc-ecosystem-template/api"
+
 	jsoniter "github.com/json-iterator/go"
-	"time"
 )
 
 type User struct {
-	Id       string    `gorm:"primaryKey;comment:记录ID" json:"id"`
-	Name     string    `gorm:"comment:名称" json:"name"`
-	Gender   uint32    `gorm:"comment:设备名称" json:"gender"`
-	Birthday time.Time `gorm:"comment:Birthday" json:"birthday"`
-	Status   uint32    `gorm:"comment:状态" json:"status"`
+	Id       uint64 `gorm:"primaryKey;comment:记录ID" json:"id"`
+	Name     string `gorm:"comment:名称" json:"name"`
+	Gender   int32  `gorm:"comment:设备名称" json:"gender"`
+	Birthday string `gorm:"comment:Birthday" json:"birthday"`
+	Status   int32  `gorm:"comment:状态" json:"status"`
 
 	Password  string `gorm:"comment:pwd" json:"password"`
 	Account   string `gorm:"comment:account, 秒" json:"account"`
@@ -32,4 +33,20 @@ func (t Extra) Value() (driver.Value, error) {
 
 func (t *Extra) Scan(v interface{}) (err error) {
 	return jsoniter.Unmarshal(v.([]uint8), t)
+}
+
+func (u *User) ConvertToProtoUser() *api.User {
+	return &api.User{
+		Id:       u.Id,
+		Name:     u.Name,
+		Gender:   api.User_Gender(u.Gender),
+		Birthday: u.Birthday,
+		Status:   api.User_Status(u.Status),
+		//Password:   u.Password,
+		Account:    u.Account,
+		Email:      u.Email,
+		Tel:        u.Tel,
+		CreateTime: u.CreateTime,
+		UpdateTime: u.UpdateTime,
+	}
 }

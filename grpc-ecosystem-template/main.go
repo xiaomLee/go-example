@@ -4,41 +4,52 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/gorilla/mux"
-	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
-	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
-	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	log "github.com/sirupsen/logrus"
-	"github.com/xiaomLee/go-plugin/db"
-	"google.golang.org/grpc"
 	"grpc-ecosystem-template/api"
+	"grpc-ecosystem-template/config"
 	"grpc-ecosystem-template/gateway"
 	"grpc-ecosystem-template/internal/model"
 	"grpc-ecosystem-template/service"
 	"grpc-ecosystem-template/version"
 	"net"
 	"net/http"
+	_ "net/http/pprof"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/gorilla/mux"
+	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
+	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/sirupsen/logrus"
+	"github.com/xiaomLee/go-plugin/db"
+	"google.golang.org/grpc"
 )
 
 //go:generate make proto
 
 var (
-	port = flag.Int("Port", 10050, "grpc listen port, http port +1")
+	port       = flag.Int("Port", 10050, "grpc listen port, http port +1")
+	configPath = flag.String("configPath", "./configs/config.yaml", "config path")
+	debug      = flag.Bool("debug", false, "enable debug mode")
+	pprof      = flag.Bool("pprof", false, "enable pprof on 6060")
+	httpPrefix = flag.String("httpPrefix", "", "http prefix path. if set, url will be like: /{prefix}/api/v1/status")
 	v          = flag.Bool("version", false, "version")
 )
 
-func main()  {
+func main() {
 	flag.Parse()
 	if *v {
 		version.PrintFullVersionInfo()
 		return
 	}
 
-	if err:=Init(); err!=nil {
-		log.Fatalf("init server err:%s", err)
+	if *debug || *pprof {
+		startPprof()
+	}
+
+	if err := Init(); err != nil {
+		logrus.Fatalf("init server err:%s", err)
 	}
 
 	// register shutdown signal
@@ -47,15 +58,15 @@ func main()  {
 
 	// run
 	var (
-		err error
+		err     error
 		grpcSrv *grpc.Server
 		httpSrv *http.Server
 	)
-	if grpcSrv, err =startGrpc(fmt.Sprintf(":%d", *port)); err !=nil {
-		log.Fatal(err)
+	if grpcSrv, err = startGrpc(fmt.Sprintf(":%d", *port)); err != nil {
+		logrus.Fatal(err)
 	}
-	if httpSrv, err = startHttp(fmt.Sprintf("127.0.0.1:%d", *port), fmt.Sprintf(":%d", *port+1)); err!=nil {
-		log.Fatal(err)
+	if httpSrv, err = startHttp(fmt.Sprintf("127.0.0.1:%d", *port), fmt.Sprintf(":%d", *port+1)); err != nil {
+		logrus.Fatal(err)
 	}
 	fmt.Printf("start grpc service listen on %d, http on %d \n", *port, *port+1)
 
@@ -80,13 +91,13 @@ func startGrpc(addr string) (*grpc.Server, error) {
 	api.RegisterUserServiceServer(srv, &service.UserService{})
 
 	// listen
-	lis, err:=net.Listen("tcp", addr)
-	if err!=nil {
+	lis, err := net.Listen("tcp", addr)
+	if err != nil {
 		return nil, err
 	}
 	go func() {
-		if err := srv.Serve(lis); err !=nil {
-			log.Errorf("grpc err:%s", err)
+		if err := srv.Serve(lis); err != nil {
+			logrus.Errorf("grpc err:%s", err)
 			return
 		}
 	}()
@@ -95,42 +106,67 @@ func startGrpc(addr string) (*grpc.Server, error) {
 
 func startHttp(endpoint, addr string) (*http.Server, error) {
 	mu := runtime.NewServeMux(
-			runtime.WithIncomingHeaderMatcher(gateway.IncomingMatcher),
-			runtime.WithOutgoingHeaderMatcher(gateway.OutgoingMatcher),
-			runtime.WithErrorHandler(gateway.CustomHTTPError),
-			//runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{
-			//	MarshalOptions:   protojson.MarshalOptions{},
-			//	UnmarshalOptions: protojson.UnmarshalOptions{},
-			//},
-			//),
-		)
+		runtime.WithIncomingHeaderMatcher(gateway.IncomingMatcher),
+		runtime.WithOutgoingHeaderMatcher(gateway.OutgoingMatcher),
+		runtime.WithErrorHandler(gateway.CustomHTTPError),
+		//runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{
+		//	MarshalOptions:   protojson.MarshalOptions{},
+		//	UnmarshalOptions: protojson.UnmarshalOptions{},
+		//},
+		//),
+	)
 	api.RegisterUserServiceHandlerFromEndpoint(context.Background(), mu, endpoint, []grpc.DialOption{grpc.WithInsecure()})
 
-	prefix := "/test"
 	router := mux.NewRouter()
-	externalRouter := router.PathPrefix(prefix).Subrouter()
-	externalRouter.NewRoute().Handler(http.StripPrefix(prefix, mu))
+	if *httpPrefix != "" {
+		router.PathPrefix(*httpPrefix).Subrouter().NewRoute().Handler(http.StripPrefix(*httpPrefix, mu))
+	} else {
+		router.NewRoute().Handler(mu)
+	}
 
 	srv := &http.Server{
-		Addr:              addr,
-		Handler:           router,
+		Addr:    addr,
+		Handler: router,
 	}
 	go func() {
 		if err := srv.ListenAndServe(); err != nil {
-			log.Errorf("http server err:%s", err.Error())
+			logrus.Errorf("http server err:%s", err.Error())
 		}
 	}()
 	return srv, nil
 }
 
+func startPprof() {
+	go func() {
+		if err := http.ListenAndServe(":6060", nil); err != nil {
+			logrus.Errorf("pprof server err:%s \n", err)
+		}
+	}()
+}
+
 func Init() error {
-	if err:=db.AddDB(db.SQLITE, "test", "file:test.db?_auth&_auth_user=admin&_auth_pass=admin&_auth_crypt=sha1"); err!=nil {
+	if err := config.Init(*configPath); err != nil {
 		return err
 	}
-	if err := model.AutoMigrate(db.MustGetDB("test").DB);err!=nil {
+	// init db
+	dbMap := config.Default.GetStringMap("db")
+	for key := range dbMap {
+		if err := db.AddDB(
+			config.Default.GetString(fmt.Sprintf("db.%s.type", key)),
+			key,
+			config.Default.GetString(fmt.Sprintf("db.%s.dsn", key)),
+			db.MaxConn(config.Default.GetInt(fmt.Sprintf("db.%s.max_conn", key))),
+			db.IdleConn(config.Default.GetInt(fmt.Sprintf("db.%s.idle_conn", key))),
+			db.MaxLeftTime(config.Default.GetInt64(fmt.Sprintf("db.%s.max_lefttime", key))),
+		); err != nil {
+			return err
+		}
+	}
+	println("init db success")
+	if err := model.AutoMigrate(db.MustGetDB("test").DB); err != nil {
 		return err
 	}
-	log.Infoln("init db and auto migrate success")
+	logrus.Infoln("init db and auto migrate success")
 
 	return nil
 }

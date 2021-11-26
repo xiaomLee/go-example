@@ -1,3 +1,3 @@
 # go-example
 
-some golang examples
+golang examples

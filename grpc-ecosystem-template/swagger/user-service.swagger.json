@@ -316,8 +316,7 @@
         },
         "birthday": {
           "type": "string",
-          "format": "date-time",
-          "description": "birthday."
+          "description": "birthday yy-mm-dd."
         },
         "status": {
           "$ref": "#/definitions/UserStatus",
@@ -418,6 +417,15 @@
           "items": {
             "$ref": "#/definitions/UserGender"
           }
+        },
+        "status": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UserStatus"
+          }
+        },
+        "email": {
+          "type": "string"
         }
       }
     },
