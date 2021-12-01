@@ -38,6 +38,6 @@ jobs:
         image: redis
     # run steps in ubuntu:20.04 docker container
     steps:
-      - run: apt-get install redis-tools
+      - run: apt-get update; apt-get -y install redis-tools
       - run: redis-cli -h redis set test-key "test key value"
       - run: redis-cli -h redis get test-key
