@@ -20,8 +20,8 @@ jobs:
     # run steps in host
     steps:
       - run: sudo apt-get install redis-tools
-      - run: redis-cli -h 127.0.0.1 6379 set test-key "test key value"
-      - run: redis-cli -h 127.0.0.1 6379 get test-key
+      - run: redis-cli -h 127.0.0.1 -p 6379 set test-key "test key value"
+      - run: redis-cli -h 127.0.0.1 -p 6379 get test-key
 
   # Label of the container job
   container-job:
@@ -38,6 +38,6 @@ jobs:
         image: redis
     # run steps in ubuntu:20.04 docker container
     steps:
-      - run: sudo apt-get install redis-tools
+      - run: apt-get install redis-tools
       - run: redis-cli -h redis set test-key "test key value"
       - run: redis-cli -h redis get test-key
