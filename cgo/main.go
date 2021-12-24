@@ -1,10 +1,12 @@
 package main
 
-//#include "hello.h"
-import "C"
+import (
+	"cgo/helloc"
+	"cgo/say"
+)
 
 func main() {
-	C.SayHello(C.CString("hello"))
-	C.SaySomething(C.CString("my name is tom"))
-	C.SayBye(C.CString("bye"))
+	helloc.Hello("Tom")
+	say.Something("How do you do?")
+	say.Bye("Tom")
 }

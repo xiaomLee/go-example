@@ -2,5 +2,5 @@
 #include <stdio.h>
 
 void SayHello(const char* s) {
-    puts(s);
+    printf("hello, %s. (print by c hello.c)\n", s);
 }

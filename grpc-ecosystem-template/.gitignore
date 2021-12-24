@@ -6,3 +6,4 @@ ssl
 logs
 build
 ./*.db
+/aarch64-linux-musl-cross/
