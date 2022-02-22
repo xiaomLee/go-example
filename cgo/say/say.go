@@ -7,7 +7,7 @@ package say
 
 /*
 #cgo CPPFLAGS: -I../include
-#cgo LDFLAGS: -L../libs -lany -lbye -Wl,-rpath,lib
+#cgo LDFLAGS: -L../libs -lany -Wl,-rpath,lib
 #include <stdlib.h>
 #include "say.h"
 */
@@ -24,8 +24,8 @@ func Something(s string) {
 	C.SaySomething(str)
 }
 
-func Bye(name string) {
-	cname := C.CString(name)
-	defer C.free(unsafe.Pointer(cname))
-	C.SayBye(cname)
-}
+// func Bye(name string) {
+// 	cname := C.CString(name)
+// 	defer C.free(unsafe.Pointer(cname))
+// 	C.SayBye(cname)
+// }

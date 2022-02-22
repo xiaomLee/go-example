@@ -10,7 +10,7 @@ lib-bye:
 	g++ lib-src/bye/bye.c lib-src/bye/print.a -fPIC -shared -o ./libs/libbye.so
 
 export-go-print:
-	go build -buildmode=c-shared -o lib-src/bye/print.a lib-src/bye/gen-go-print/print.go
+	go build -buildmode=c-archive -o lib-src/bye/print.a lib-src/bye/gen-go-print/print.go
 
 build-bye:
 	g++ lib-src/bye/bye.c lib-src/bye/print.a -o bye.out

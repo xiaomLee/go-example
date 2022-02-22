@@ -22,7 +22,7 @@ LDFLAGS += -X "$(project)/version.GitBranch=$(shell git rev-parse --abbrev-ref H
 LDFLAGS += -X "$(project)/version.App=$(PROJECT_NAME)"
 
 # static-link build
-LDFLAGS += '-extldflags=-static'
+#LDFLAGS += '-extldflags=-static'
 
 project=grpc-ecosystem-template
 SRC = $(shell find . -type f -name '*.go')
