@@ -1,0 +1,1 @@
+void SayHello(const char* from, const char *to);   // implement by c

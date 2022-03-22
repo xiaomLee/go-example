@@ -1,13 +1,12 @@
 package main
 
 import (
-	"cgo/helloc"
-	"cgo/lib-src/bye"
-	"cgo/say"
+	"cgo/src/hello"
 )
 
 func main() {
-	helloc.Hello("Tom")
-	say.Something("How do you do?")
-	bye.Bye("Tom")
+	hello.Hello("Tom", "Jack")
+	Say("Tom", "what a fucking day!")
+	Say("Jack", "yes.")
+	Bye("Jack", "Tom")
 }
