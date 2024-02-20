@@ -3,3 +3,4 @@
 /cgo/src/bye/*.o
 /cgo/src/bye/*.so*
 /cgo/src/bye/print.*
+.idea

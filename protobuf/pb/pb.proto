@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package pb;
+//option go_package = "protobuf";
+
+message Person {
+  uint32 age = 1;
+  int32 account = 2;
+  string name = 3;          // 请求的controller
+  string action = 4;              // 请求的action
+  map<string, string> params = 5; // 请求附带的所有参数
+
+}
+
+message Response {
+  bool success = 1;    // 请求是否成功
+  bytes data = 5;      // 实际返回给客户端的数据
+}
+
+message Test
+{
+  int32 num1 = 1;
+  fixed32 num2 = 2;
+}
+
+message Test2
+{
+  string name = 1;
+}
+
+message Test3
+{
+  repeated int32 num = 1 [packed=true];
+}
